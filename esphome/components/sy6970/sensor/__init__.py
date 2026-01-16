@@ -9,7 +9,7 @@ from esphome.const import (
     DEVICE_CLASS_CURRENT,
     DEVICE_CLASS_VOLTAGE,
     STATE_CLASS_MEASUREMENT,
-    UNIT_MILLIAMPERE,
+    UNIT_MILLIAMP,
     UNIT_VOLT,
 )
 
@@ -47,13 +47,13 @@ CONFIG_SCHEMA = cv.Schema(
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_CHARGE_CURRENT): sensor.sensor_schema(
-            unit_of_measurement=UNIT_MILLIAMPERE,
+            unit_of_measurement=UNIT_MILLIAMP,
             accuracy_decimals=0,
             device_class=DEVICE_CLASS_CURRENT,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_PRECHARGE_CURRENT): sensor.sensor_schema(
-            unit_of_measurement=UNIT_MILLIAMPERE,
+            unit_of_measurement=UNIT_MILLIAMP,
             accuracy_decimals=0,
             device_class=DEVICE_CLASS_CURRENT,
             state_class=STATE_CLASS_MEASUREMENT,

@@ -3,28 +3,63 @@
 #include "esphome/components/i2c/i2c.h"
 #include "esphome/core/component.h"
 
-// Forward declare the PowersSY6970 class
-class PowersSY6970;
-
 namespace esphome {
 namespace sy6970 {
 
+// SY6970 Register addresses
+static const uint8_t SY6970_REG_00 = 0x00;
+static const uint8_t SY6970_REG_01 = 0x01;
+static const uint8_t SY6970_REG_02 = 0x02;
+static const uint8_t SY6970_REG_03 = 0x03;
+static const uint8_t SY6970_REG_04 = 0x04;
+static const uint8_t SY6970_REG_05 = 0x05;
+static const uint8_t SY6970_REG_06 = 0x06;
+static const uint8_t SY6970_REG_07 = 0x07;
+static const uint8_t SY6970_REG_08 = 0x08;
+static const uint8_t SY6970_REG_09 = 0x09;
+static const uint8_t SY6970_REG_0A = 0x0A;
+static const uint8_t SY6970_REG_0B = 0x0B;
+static const uint8_t SY6970_REG_0C = 0x0C;
+static const uint8_t SY6970_REG_0D = 0x0D;
+static const uint8_t SY6970_REG_0E = 0x0E;
+static const uint8_t SY6970_REG_11 = 0x11;
+static const uint8_t SY6970_REG_12 = 0x12;
+static const uint8_t SY6970_REG_13 = 0x13;
+static const uint8_t SY6970_REG_14 = 0x14;
+
+// Bus Status values (REG_0B[7:5])
+enum BusStatus {
+  BUS_STATUS_NO_INPUT = 0,
+  BUS_STATUS_USB_SDP = 1,
+  BUS_STATUS_USB_CDP = 2,
+  BUS_STATUS_USB_DCP = 3,
+  BUS_STATUS_HVDCP = 4,
+  BUS_STATUS_ADAPTER = 5,
+  BUS_STATUS_NO_STD_ADAPTER = 6,
+  BUS_STATUS_OTG = 7,
+};
+
+// Charge Status values (REG_0B[4:3])
+enum ChargeStatus {
+  CHARGE_STATUS_NOT_CHARGING = 0,
+  CHARGE_STATUS_PRE_CHARGE = 1,
+  CHARGE_STATUS_FAST_CHARGE = 2,
+  CHARGE_STATUS_CHARGE_DONE = 3,
+};
+
 class SY6970Component : public Component, public i2c::I2CDevice {
  public:
-  SY6970Component();
-  ~SY6970Component();
-
   void setup() override;
   void dump_config() override;
   void loop() override;
   float get_setup_priority() const override { return setup_priority::DATA; }
 
-  // Get voltage readings
+  // Get voltage readings (in millivolts)
   uint16_t get_vbus_voltage();
   uint16_t get_battery_voltage();
   uint16_t get_system_voltage();
 
-  // Get current readings
+  // Get current readings (in milliamps)
   uint16_t get_charge_current();
   uint16_t get_precharge_current();
 
@@ -54,14 +89,13 @@ class SY6970Component : public Component, public i2c::I2CDevice {
   uint16_t get_charge_target_voltage();
   uint16_t get_charge_constant_current();
 
-  // I2C callback functions for XPowersLib
-  int i2c_read_reg(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t len);
-  int i2c_write_reg(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t len);
-
  protected:
-  PowersSY6970 *pmu_{nullptr};
+  bool read_register_(uint8_t reg, uint8_t *value);
+  bool write_register_(uint8_t reg, uint8_t value);
+  bool update_register_(uint8_t reg, uint8_t mask, uint8_t value);
+
   bool initialized_{false};
-  static SY6970Component *instance_;
-  static int static_i2c_read(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t len);
-  static int static_i2c_write(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t len);
 };
+
+}  // namespace sy6970
+}  // namespace esphome
