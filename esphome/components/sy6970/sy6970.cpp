@@ -8,15 +8,15 @@ namespace sy6970 {
 static const char *const TAG = "sy6970";
 
 // Constants for voltage and current calculations
-static const uint16_t VBUS_BASE = 2600;   // mV
-static const uint16_t VBUS_STEP = 100;    // mV
-static const uint16_t VBAT_BASE = 2304;   // mV
-static const uint16_t VBAT_STEP = 20;     // mV
-static const uint16_t VSYS_BASE = 2304;   // mV
-static const uint16_t VSYS_STEP = 20;     // mV
-static const uint16_t CHG_CURRENT_STEP = 50;  // mA
-static const uint16_t PRE_CHG_BASE = 64;  // mA
-static const uint16_t PRE_CHG_STEP = 64;  // mA
+static const uint16_t VBUS_BASE = 2600;         // mV
+static const uint16_t VBUS_STEP = 100;          // mV
+static const uint16_t VBAT_BASE = 2304;         // mV
+static const uint16_t VBAT_STEP = 20;           // mV
+static const uint16_t VSYS_BASE = 2304;         // mV
+static const uint16_t VSYS_STEP = 20;           // mV
+static const uint16_t CHG_CURRENT_STEP = 50;    // mA
+static const uint16_t PRE_CHG_BASE = 64;        // mA
+static const uint16_t PRE_CHG_STEP = 64;        // mA
 static const uint16_t CHG_VOLTAGE_BASE = 3840;  // mV
 static const uint16_t CHG_VOLTAGE_STEP = 16;    // mV
 static const uint16_t INPUT_CURRENT_MIN = 100;  // mA

@@ -1,11 +1,7 @@
 import esphome.codegen as cg
 from esphome.components import binary_sensor
 import esphome.config_validation as cv
-from esphome.const import (
-    CONF_ID,
-    DEVICE_CLASS_CONNECTIVITY,
-    DEVICE_CLASS_POWER,
-)
+from esphome.const import CONF_ID, DEVICE_CLASS_CONNECTIVITY, DEVICE_CLASS_POWER
 
 from .. import CONF_SY6970_ID, SY6970Component, sy6970_ns
 
