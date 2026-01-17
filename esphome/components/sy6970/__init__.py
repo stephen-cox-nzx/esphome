@@ -8,7 +8,7 @@ DEPENDENCIES = ["i2c"]
 MULTI_CONF = True
 
 CONF_SY6970_ID = "sy6970_id"
-CONF_ENABLE_STAT_LED = "enable_stat_led"
+CONF_ENABLE_STATUS_LED = "enable_status_led"
 
 sy6970_ns = cg.esphome_ns.namespace("sy6970")
 SY6970Component = sy6970_ns.class_("SY6970Component", cg.Component, i2c.I2CDevice)
@@ -17,7 +17,7 @@ CONFIG_SCHEMA = (
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(SY6970Component),
-            cv.Optional(CONF_ENABLE_STAT_LED, default=True): cv.boolean,
+            cv.Optional(CONF_ENABLE_STATUS_LED, default=True): cv.boolean,
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
@@ -30,7 +30,7 @@ async def to_code(config):
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
 
-    if config[CONF_ENABLE_STAT_LED]:
+    if config[CONF_ENABLE_STATUS_LED]:
         cg.add(var.enable_stat_led())
     else:
         cg.add(var.disable_stat_led())
