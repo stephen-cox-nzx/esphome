@@ -175,27 +175,27 @@ void SY6970Component::publish_text_sensors_(const SY6970Data &data) {
 }
 
 uint16_t SY6970Component::get_vbus_voltage_(const SY6970Data &data) {
-  uint8_t vbus_val = data.registers[0x11] & 0x7F;
+  uint8_t vbus_val = data.registers[SY6970_REG_11] & 0x7F;
   return VBUS_BASE + (vbus_val * VBUS_STEP);
 }
 
 uint16_t SY6970Component::get_battery_voltage_(const SY6970Data &data) {
-  uint8_t vbat_val = data.registers[0x0E] & 0x7F;
+  uint8_t vbat_val = data.registers[SY6970_REG_0E] & 0x7F;
   return VBAT_BASE + (vbat_val * VBAT_STEP);
 }
 
 uint16_t SY6970Component::get_system_voltage_(const SY6970Data &data) {
-  uint8_t vsys_val = data.registers[0x0D] & 0x7F;
+  uint8_t vsys_val = data.registers[SY6970_REG_0D] & 0x7F;
   return VSYS_BASE + (vsys_val * VSYS_STEP);
 }
 
 uint16_t SY6970Component::get_charge_current_(const SY6970Data &data) {
-  uint8_t ichg_val = data.registers[0x12] & 0x7F;
+  uint8_t ichg_val = data.registers[SY6970_REG_12] & 0x7F;
   return ichg_val * CHG_CURRENT_STEP;
 }
 
 uint16_t SY6970Component::get_precharge_current_(const SY6970Data &data) {
-  uint8_t iprechg = (data.registers[0x05] >> 4) & 0x0F;
+  uint8_t iprechg = (data.registers[SY6970_REG_05] >> 4) & 0x0F;
   return PRE_CHG_BASE + (iprechg * PRE_CHG_STEP);
 }
 
@@ -214,11 +214,13 @@ bool SY6970Component::is_charge_done_(const SY6970Data &data) {
   return chrg_stat == CHARGE_STATUS_CHARGE_DONE;
 }
 
-uint8_t SY6970Component::get_bus_status_(const SY6970Data &data) { return (data.registers[0x0B] >> 5) & 0x07; }
+uint8_t SY6970Component::get_bus_status_(const SY6970Data &data) { return (data.registers[SY6970_REG_0B] >> 5) & 0x07; }
 
-uint8_t SY6970Component::get_charge_status_(const SY6970Data &data) { return (data.registers[0x0B] >> 3) & 0x03; }
+uint8_t SY6970Component::get_charge_status_(const SY6970Data &data) {
+  return (data.registers[SY6970_REG_0B] >> 3) & 0x03;
+}
 
-uint8_t SY6970Component::get_ntc_status_(const SY6970Data &data) { return data.registers[0x0C] & 0x07; }
+uint8_t SY6970Component::get_ntc_status_(const SY6970Data &data) { return data.registers[SY6970_REG_0C] & 0x07; }
 
 const char *SY6970Component::get_bus_status_string_(uint8_t status) {
   switch (status) {
