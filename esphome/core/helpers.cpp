@@ -404,15 +404,31 @@ std::string format_hex_pretty(const std::string &data, char separator, bool show
   return format_hex_pretty_uint8(reinterpret_cast<const uint8_t *>(data.data()), data.length(), separator, show_length);
 }
 
+char *format_bin_to(char *buffer, size_t buffer_size, const uint8_t *data, size_t length) {
+  if (buffer_size == 0) {
+    return buffer;
+  }
+  // Calculate max bytes we can format: each byte needs 8 chars
+  size_t max_bytes = (buffer_size - 1) / 8;
+  if (max_bytes == 0 || length == 0) {
+    buffer[0] = '\0';
+    return buffer;
+  }
+  size_t bytes_to_format = std::min(length, max_bytes);
+
+  for (size_t byte_idx = 0; byte_idx < bytes_to_format; byte_idx++) {
+    for (size_t bit_idx = 0; bit_idx < 8; bit_idx++) {
+      buffer[byte_idx * 8 + bit_idx] = ((data[byte_idx] >> (7 - bit_idx)) & 1) + '0';
+    }
+  }
+  buffer[bytes_to_format * 8] = '\0';
+  return buffer;
+}
+
 std::string format_bin(const uint8_t *data, size_t length) {
   std::string result;
   result.resize(length * 8);
-  for (size_t byte_idx = 0; byte_idx < length; byte_idx++) {
-    for (size_t bit_idx = 0; bit_idx < 8; bit_idx++) {
-      result[byte_idx * 8 + bit_idx] = ((data[byte_idx] >> (7 - bit_idx)) & 1) + '0';
-    }
-  }
-
+  format_bin_to(&result[0], length * 8 + 1, data, length);
   return result;
 }
 
@@ -662,55 +678,6 @@ bool base64_decode_int32_vector(const std::string &base64, std::vector<int32_t> 
   }
 
   return !out.empty();
-}
-
-/// Encode int32 to 5 base85 characters + null terminator
-/// Standard ASCII85 alphabet: '!' (33) = 0 through 'u' (117) = 84
-inline void base85_encode_int32(int32_t value, std::span<char, BASE85_INT32_ENCODED_SIZE> output) {
-  uint32_t v = static_cast<uint32_t>(value);
-  // Encode least significant digit first, then reverse
-  for (int i = 4; i >= 0; i--) {
-    output[i] = static_cast<char>('!' + (v % 85));
-    v /= 85;
-  }
-  output[5] = '\0';
-}
-
-/// Decode 5 base85 characters to int32
-inline bool base85_decode_int32(const char *input, int32_t &out) {
-  uint8_t c0 = static_cast<uint8_t>(input[0] - '!');
-  uint8_t c1 = static_cast<uint8_t>(input[1] - '!');
-  uint8_t c2 = static_cast<uint8_t>(input[2] - '!');
-  uint8_t c3 = static_cast<uint8_t>(input[3] - '!');
-  uint8_t c4 = static_cast<uint8_t>(input[4] - '!');
-
-  // Each digit must be 0-84. Since uint8_t wraps, chars below '!' become > 84
-  if (c0 > 84 || c1 > 84 || c2 > 84 || c3 > 84 || c4 > 84)
-    return false;
-
-  // 85^4 = 52200625, 85^3 = 614125, 85^2 = 7225, 85^1 = 85
-  out = static_cast<int32_t>(c0 * 52200625u + c1 * 614125u + c2 * 7225u + c3 * 85u + c4);
-  return true;
-}
-
-/// Decode base85 string directly into vector (no intermediate buffer)
-bool base85_decode_int32_vector(const std::string &base85, std::vector<int32_t> &out) {
-  size_t len = base85.size();
-  if (len % 5 != 0)
-    return false;
-
-  out.clear();
-  const char *ptr = base85.data();
-  const char *end = ptr + len;
-
-  while (ptr < end) {
-    int32_t value;
-    if (!base85_decode_int32(ptr, value))
-      return false;
-    out.push_back(value);
-    ptr += 5;
-  }
-  return true;
 }
 
 // Colors
