@@ -25,11 +25,15 @@ sensor:
     sy6970_id: pmu
     update_interval: 1s
     vbus_voltage:
-      name: "USB Voltage"
+      name: VBUS Voltage
     battery_voltage:
-      name: "Battery Voltage"
+      name: Battery Voltage
+    system_voltage:
+      name: System Voltage
     charge_current:
-      name: "Charge Current"
+      name: Charge Current
+    precharge_current:
+      name: Precharge Current
 
 text_sensor:
   - platform: sy6970
@@ -52,7 +56,10 @@ binary_sensor:
     update_interval: 1s
     charging:
       name: "Battery Charging"
-
+    vbus_connected:
+      name: VBUS Connected
+    charge_done:
+      name: Charge Done
 ```
 
 ## Implementation
@@ -79,8 +86,8 @@ binary_sensor:
 ## Register Implementation
 The component directly implements the SY6970 register protocol:
 
-REG_0B: Bus and charge status (bits 7:5 for bus type, 3:2 for charge state)
-REG_0E: Battery voltage (base 2304mV, 20mV steps)
-REG_11: VBUS voltage (base 2600mV, 100mV steps)
-REG_12: Charge current (50mA steps)
-REG_00-07: Configuration registers for current limits, charge parameters, safety timers
+* REG_0B: Bus and charge status (bits 7:5 for bus type, 3:2 for charge state)
+* REG_0E: Battery voltage (base 2304mV, 20mV steps)
+* REG_11: VBUS voltage (base 2600mV, 100mV steps)
+* REG_12: Charge current (50mA steps)
+* REG_00-07: Configuration registers for current limits, charge parameters, safety timers
