@@ -23,7 +23,7 @@ class SY6970BinarySensor : public PollingComponent {
   void update() override;
 
  protected:
-  SY6970Component *parent_;
+  SY6970Component *parent_{nullptr};
   binary_sensor::BinarySensor *vbus_connected_binary_sensor_{nullptr};
   binary_sensor::BinarySensor *charging_binary_sensor_{nullptr};
   binary_sensor::BinarySensor *charge_done_binary_sensor_{nullptr};

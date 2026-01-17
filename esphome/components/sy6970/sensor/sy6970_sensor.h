@@ -29,7 +29,7 @@ class SY6970Sensor : public PollingComponent {
   void update() override;
 
  protected:
-  SY6970Component *parent_;
+  SY6970Component *parent_{nullptr};
   sensor::Sensor *vbus_voltage_sensor_{nullptr};
   sensor::Sensor *battery_voltage_sensor_{nullptr};
   sensor::Sensor *system_voltage_sensor_{nullptr};

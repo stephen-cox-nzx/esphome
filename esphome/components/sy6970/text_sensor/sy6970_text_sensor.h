@@ -23,7 +23,7 @@ class SY6970TextSensor : public PollingComponent {
   void update() override;
 
  protected:
-  SY6970Component *parent_;
+  SY6970Component *parent_{nullptr};
   text_sensor::TextSensor *bus_status_text_sensor_{nullptr};
   text_sensor::TextSensor *charge_status_text_sensor_{nullptr};
   text_sensor::TextSensor *ntc_status_text_sensor_{nullptr};
