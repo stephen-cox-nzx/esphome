@@ -2,7 +2,7 @@ sy6970:
   id: sy6970_component
   i2c_id: i2c_bus
   address: 0x6B
-  enable_stat_led: true
+  enable_status_led: true
 
 sensor:
   - platform: sy6970

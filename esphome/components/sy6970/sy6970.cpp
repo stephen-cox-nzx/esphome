@@ -351,7 +351,7 @@ void SY6970Component::disable_charge() {
   this->update_register_(SY6970_REG_03, 0x10, 0x00);
 }
 
-void SY6970Component::enable_stat_led() {
+void SY6970Component::enable_status_led() {
   if (!this->initialized_)
     return;
 
@@ -359,7 +359,7 @@ void SY6970Component::enable_stat_led() {
   this->update_register_(SY6970_REG_07, 0x40, 0x00);
 }
 
-void SY6970Component::disable_stat_led() {
+void SY6970Component::disable_status_led() {
   if (!this->initialized_)
     return;
 
