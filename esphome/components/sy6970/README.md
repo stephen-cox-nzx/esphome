@@ -34,7 +34,15 @@ text_sensor:
     sy6970_id: pmu
     update_interval: 1s
     bus_status:
-      name: "Power Source"
+      name: "Power Source Type"
+      # Reports: "No Input", "USB SDP", "USB CDP", "USB DCP",
+      #          "HVDCP", "Adapter", "Non-Standard Adapter", "OTG"
+    charge_status:
+      name: "Charging Status"
+      # Reports: "Not Charging", "Pre-charge", "Fast Charge", "Charge Done"
+    ntc_status:
+      name: "Battery Temperature"
+      # Reports: "Normal", "Warm", "Cool", "Cold", "Hot"
 
 binary_sensor:
   - platform: sy6970
