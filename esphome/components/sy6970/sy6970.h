@@ -81,8 +81,8 @@ class SY6970Component : public Component, public i2c::I2CDevice {
   void set_charge_current(uint16_t milliamps);
   void enable_charge();
   void disable_charge();
-  void enable_stat_led();
-  void disable_stat_led();
+  void enable_status_led();
+  void disable_status_led();
   void enable_adc_measure();
 
   // Get configuration values
