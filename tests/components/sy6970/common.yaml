@@ -3,7 +3,7 @@ sy6970:
   i2c_id: i2c_bus
   address: 0x6B
   enable_status_led: true
-  update_interval: 60s
+  update_interval: 5s
 
 sensor:
   - platform: sy6970
