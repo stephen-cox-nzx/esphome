@@ -17,6 +17,8 @@ i2c:
 sy6970:
   id: pmu
   address: 0x6A
+  # Optional - defaults to True
+  enable_status_led: True
 
 sensor:
   - platform: sy6970
@@ -52,3 +54,33 @@ binary_sensor:
       name: "Battery Charging"
 
 ```
+
+## Implementation
+* Core component: Direct I2C register implementation without external library dependencies
+* Sensor platform:
+  * VBUS/battery/system voltage,
+  * charge/precharge current monitoring
+* Binary sensor platform:
+  * VBUS connection,
+  * charging state,
+  * charge completion detection
+* Text sensor platform:
+  * Bus status (USB SDP/CDP/DCP, HVDCP, adapter type),
+  * charge status,
+  * NTC temperature status
+* Configuration API:
+  * Input current limit,
+  * charge voltage/current settings,
+  * charge enable/disable,
+  * status LED control,
+  * ADC measurement control
+
+
+## Register Implementation
+The component directly implements the SY6970 register protocol:
+
+REG_0B: Bus and charge status (bits 7:5 for bus type, 3:2 for charge state)
+REG_0E: Battery voltage (base 2304mV, 20mV steps)
+REG_11: VBUS voltage (base 2600mV, 100mV steps)
+REG_12: Charge current (50mA steps)
+REG_00-07: Configuration registers for current limits, charge parameters, safety timers
