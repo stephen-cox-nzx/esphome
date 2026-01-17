@@ -22,27 +22,10 @@ static const uint16_t INPUT_CURRENT_MIN = 100;  // mA
 static const uint16_t INPUT_CURRENT_STEP = 50;  // mA
 
 bool SY6970Component::read_all_registers_() {
-  // Read continuous block from 0x00 to 0x0E (15 bytes)
-  if (!this->read_bytes(SY6970_REG_00, this->data_.reg_00_to_0e, 15)) {
-    ESP_LOGW(TAG, "Failed to read registers 0x00-0x0E");
-    return false;
-  }
-
-  // Read register 0x11 (VBUS voltage)
-  if (!this->read_byte(SY6970_REG_11, &this->data_.reg_11)) {
-    ESP_LOGW(TAG, "Failed to read register 0x11");
-    return false;
-  }
-
-  // Read register 0x12 (charge current)
-  if (!this->read_byte(SY6970_REG_12, &this->data_.reg_12)) {
-    ESP_LOGW(TAG, "Failed to read register 0x12");
-    return false;
-  }
-
-  // Read register 0x14 (chip info)
-  if (!this->read_byte(SY6970_REG_14, &this->data_.reg_14)) {
-    ESP_LOGW(TAG, "Failed to read register 0x14");
+  // Read all registers from 0x00 to 0x14 in one transaction (21 bytes)
+  // This includes unused registers 0x0F, 0x10, 0x13 for performance
+  if (!this->read_bytes(SY6970_REG_00, this->data_.registers, 21)) {
+    ESP_LOGW(TAG, "Failed to read registers 0x00-0x14");
     return false;
   }
 
@@ -192,27 +175,27 @@ void SY6970Component::publish_text_sensors_(const SY6970Data &data) {
 }
 
 uint16_t SY6970Component::get_vbus_voltage_(const SY6970Data &data) {
-  uint8_t vbus_val = data.reg_11 & 0x7F;
+  uint8_t vbus_val = data.registers[0x11] & 0x7F;
   return VBUS_BASE + (vbus_val * VBUS_STEP);
 }
 
 uint16_t SY6970Component::get_battery_voltage_(const SY6970Data &data) {
-  uint8_t vbat_val = data.reg_00_to_0e[0x0E] & 0x7F;
+  uint8_t vbat_val = data.registers[0x0E] & 0x7F;
   return VBAT_BASE + (vbat_val * VBAT_STEP);
 }
 
 uint16_t SY6970Component::get_system_voltage_(const SY6970Data &data) {
-  uint8_t vsys_val = data.reg_00_to_0e[0x0D] & 0x7F;
+  uint8_t vsys_val = data.registers[0x0D] & 0x7F;
   return VSYS_BASE + (vsys_val * VSYS_STEP);
 }
 
 uint16_t SY6970Component::get_charge_current_(const SY6970Data &data) {
-  uint8_t ichg_val = data.reg_12 & 0x7F;
+  uint8_t ichg_val = data.registers[0x12] & 0x7F;
   return ichg_val * CHG_CURRENT_STEP;
 }
 
 uint16_t SY6970Component::get_precharge_current_(const SY6970Data &data) {
-  uint8_t iprechg = (data.reg_00_to_0e[0x05] >> 4) & 0x0F;
+  uint8_t iprechg = (data.registers[0x05] >> 4) & 0x0F;
   return PRE_CHG_BASE + (iprechg * PRE_CHG_STEP);
 }
 
@@ -231,11 +214,11 @@ bool SY6970Component::is_charge_done_(const SY6970Data &data) {
   return chrg_stat == CHARGE_STATUS_CHARGE_DONE;
 }
 
-uint8_t SY6970Component::get_bus_status_(const SY6970Data &data) { return (data.reg_00_to_0e[0x0B] >> 5) & 0x07; }
+uint8_t SY6970Component::get_bus_status_(const SY6970Data &data) { return (data.registers[0x0B] >> 5) & 0x07; }
 
-uint8_t SY6970Component::get_charge_status_(const SY6970Data &data) { return (data.reg_00_to_0e[0x0B] >> 3) & 0x03; }
+uint8_t SY6970Component::get_charge_status_(const SY6970Data &data) { return (data.registers[0x0B] >> 3) & 0x03; }
 
-uint8_t SY6970Component::get_ntc_status_(const SY6970Data &data) { return data.reg_00_to_0e[0x0C] & 0x07; }
+uint8_t SY6970Component::get_ntc_status_(const SY6970Data &data) { return data.registers[0x0C] & 0x07; }
 
 const char *SY6970Component::get_bus_status_string_(uint8_t status) {
   switch (status) {

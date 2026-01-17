@@ -51,10 +51,7 @@ enum ChargeStatus {
 
 // Structure to hold all register data read in one transaction
 struct SY6970Data {
-  uint8_t reg_00_to_0e[15];  // Registers 0x00-0x0E (continuous block)
-  uint8_t reg_11;            // Register 0x11 (VBUS voltage)
-  uint8_t reg_12;            // Register 0x12 (charge current)
-  uint8_t reg_14;            // Register 0x14 (chip info)
+  uint8_t registers[21];  // Registers 0x00-0x14 (includes unused 0x0F, 0x10, 0x13)
 };
 
 class SY6970Component : public PollingComponent, public i2c::I2CDevice {
