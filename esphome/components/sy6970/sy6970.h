@@ -100,7 +100,7 @@ class SY6970Component : public PollingComponent, public i2c::I2CDevice {
   void set_charge_current(uint16_t milliamps);
   void set_charge_enabled(bool enabled);
   void set_led_enabled(bool enabled);
-  void enable_adc_measure();
+  void set_enable_adc_measure(bool enabled = true);
 
  protected:
   bool read_all_registers_();
