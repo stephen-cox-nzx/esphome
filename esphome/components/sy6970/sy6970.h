@@ -64,7 +64,7 @@ enum ChargeStatus {
 
 // Structure to hold all register data read in one transaction
 struct SY6970Data {
-  uint8_t registers[21];  // Registers 0x00-0x14 (includes unused 0x0F, 0x10, 0x13)
+  uint8_t registers[21];  // Registers 0x00-0x14 (includes unused 0x0F, 0x10)
 };
 
 // Listener interface for components that want to receive SY6970 data updates
@@ -100,10 +100,7 @@ class SY6970Component : public PollingComponent, public i2c::I2CDevice {
   void set_charge_current(uint16_t milliamps);
   void set_charge_enabled(bool enabled);
   void set_led_enabled(bool enabled);
-  void set_enable_adc_measure(bool enabled = true);
-
-  // Action methods to be called from config
-  void led_enabled_action_handler(bool enabled);
+  void enable_adc_measure();
 
  protected:
   bool read_all_registers_();
