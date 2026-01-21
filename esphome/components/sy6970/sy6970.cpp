@@ -51,8 +51,39 @@ void SY6970Component::setup() {
     ESP_LOGW(TAG, "Unexpected chip ID: 0x%02X (expected 0x00)", chip_id);
   }
 
-  ESP_LOGCONFIG(TAG, "Setting LED enabled to %s", ONOFF(led_enabled_));
-  this->set_led_enabled(led_enabled_);
+  // Apply configuration options in order
+  ESP_LOGCONFIG(TAG, "Setting LED enabled to %s", ONOFF(this->led_enabled_));
+  this->set_led_enabled(this->led_enabled_);
+
+  if (this->input_current_limit_.has_value()) {
+    ESP_LOGCONFIG(TAG, "Setting input current limit to %u mA", this->input_current_limit_.value());
+    this->set_input_current_limit(this->input_current_limit_.value());
+  }
+
+  if (this->charge_voltage_.has_value()) {
+    ESP_LOGCONFIG(TAG, "Setting charge voltage to %u mV", this->charge_voltage_.value());
+    this->set_charge_target_voltage(this->charge_voltage_.value());
+  }
+
+  if (this->charge_current_.has_value()) {
+    ESP_LOGCONFIG(TAG, "Setting charge current to %u mA", this->charge_current_.value());
+    this->set_charge_current(this->charge_current_.value());
+  }
+
+  if (this->precharge_current_.has_value()) {
+    ESP_LOGCONFIG(TAG, "Setting precharge current to %u mA", this->precharge_current_.value());
+    this->set_precharge_current(this->precharge_current_.value());
+  }
+
+  if (this->charge_enabled_.has_value()) {
+    ESP_LOGCONFIG(TAG, "Setting charge enabled to %s", ONOFF(this->charge_enabled_.value()));
+    this->set_charge_enabled(this->charge_enabled_.value());
+  }
+
+  if (this->enable_adc_) {
+    ESP_LOGCONFIG(TAG, "Enabling ADC measurements");
+    this->enable_adc_measure();
+  }
 
   ESP_LOGCONFIG(TAG, "SY6970 initialized successfully");
 }

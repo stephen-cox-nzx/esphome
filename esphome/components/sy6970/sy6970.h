@@ -75,7 +75,16 @@ class SY6970Listener {
 
 class SY6970Component : public PollingComponent, public i2c::I2CDevice {
  public:
-  SY6970Component(bool led_enabled) : led_enabled_(led_enabled) {}
+  SY6970Component(bool led_enabled, optional<uint16_t> input_current_limit, optional<uint16_t> charge_voltage,
+                  optional<uint16_t> charge_current, optional<uint16_t> precharge_current,
+                  optional<bool> charge_enabled, bool enable_adc)
+      : led_enabled_(led_enabled),
+        input_current_limit_(input_current_limit),
+        charge_voltage_(charge_voltage),
+        charge_current_(charge_current),
+        precharge_current_(precharge_current),
+        charge_enabled_(charge_enabled),
+        enable_adc_(enable_adc) {}
   void setup() override;
   void dump_config() override;
   void update() override;
@@ -104,8 +113,14 @@ class SY6970Component : public PollingComponent, public i2c::I2CDevice {
   SY6970Data data_{};
   std::vector<SY6970Listener *> listeners_;
 
-  // the requested LED state to set from config. Will be set during setup()
+  // Configuration values to set during setup()
   bool led_enabled_{true};
+  optional<uint16_t> input_current_limit_;
+  optional<uint16_t> charge_voltage_;
+  optional<uint16_t> charge_current_;
+  optional<uint16_t> precharge_current_;
+  optional<bool> charge_enabled_;
+  bool enable_adc_{true};
 };
 
 }  // namespace esphome::sy6970
