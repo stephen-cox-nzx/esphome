@@ -44,11 +44,11 @@ async def to_code(config):
     var = cg.new_Pvariable(
         config[CONF_ID],
         config[CONF_ENABLE_STATUS_LED],
-        config.get(CONF_INPUT_CURRENT_LIMIT) if CONF_INPUT_CURRENT_LIMIT in config else cg.RawExpression("std::nullopt"),
-        config.get(CONF_CHARGE_VOLTAGE) if CONF_CHARGE_VOLTAGE in config else cg.RawExpression("std::nullopt"),
-        config.get(CONF_CHARGE_CURRENT) if CONF_CHARGE_CURRENT in config else cg.RawExpression("std::nullopt"),
-        config.get(CONF_PRECHARGE_CURRENT) if CONF_PRECHARGE_CURRENT in config else cg.RawExpression("std::nullopt"),
-        config.get(CONF_CHARGE_ENABLED) if CONF_CHARGE_ENABLED in config else cg.RawExpression("std::nullopt"),
+        config.get(CONF_INPUT_CURRENT_LIMIT, cg.RawExpression("std::nullopt")),
+        config.get(CONF_CHARGE_VOLTAGE, cg.RawExpression("std::nullopt")),
+        config.get(CONF_CHARGE_CURRENT, cg.RawExpression("std::nullopt")),
+        config.get(CONF_PRECHARGE_CURRENT, cg.RawExpression("std::nullopt")),
+        config.get(CONF_CHARGE_ENABLED, cg.RawExpression("std::nullopt")),
         config[CONF_ENABLE_ADC],
     )
     await cg.register_component(var, config)

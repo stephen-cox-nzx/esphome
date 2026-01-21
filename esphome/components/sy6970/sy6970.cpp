@@ -187,12 +187,6 @@ void SY6970Component::set_charge_enabled(bool enabled) {
   this->update_register_(SY6970_REG_SYS_CONTROL, 0x10, enabled ? 0x10 : 0x00);
 }
 
-void SY6970Component::led_enabled_action_handler(bool enabled) {
-  // method to be called from config to subsequently set LED state during setup
-  this->led_enabled_requested_ = true;
-  this->led_enabled_requested_state_ = enabled;
-}
-
 void SY6970Component::set_led_enabled(bool enabled) {
   if (this->is_failed())
     return;
