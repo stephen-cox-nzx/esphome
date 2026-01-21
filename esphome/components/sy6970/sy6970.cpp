@@ -51,10 +51,8 @@ void SY6970Component::setup() {
     ESP_LOGW(TAG, "Unexpected chip ID: 0x%02X (expected 0x00)", chip_id);
   }
 
-  if (this->led_enabled_requested_) {
-    ESP_LOGCONFIG(TAG, "Setting LED enabled to %s", ONOFF(led_enabled_requested_state_));
-    this->set_led_enabled(led_enabled_requested_state_);
-  }
+  ESP_LOGCONFIG(TAG, "Setting LED enabled to %s", ONOFF(led_enabled_));
+  this->set_led_enabled(led_enabled_);
 
   ESP_LOGCONFIG(TAG, "SY6970 initialized successfully");
 }
