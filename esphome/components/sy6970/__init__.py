@@ -30,7 +30,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_INPUT_CURRENT_LIMIT, default=500): cv.int_range(min=100, max=3200),
             cv.Optional(CONF_CHARGE_VOLTAGE, default=4208): cv.int_range(min=3840, max=4608),
             cv.Optional(CONF_CHARGE_CURRENT, default=2048): cv.int_range(min=0, max=5056),
-            cv.Optional(CONF_PRECHARGE_CURRENT, default=256): cv.int_range(min=64, max=1024),
+            cv.Optional(CONF_PRECHARGE_CURRENT, default=128): cv.int_range(min=64, max=1024),
             cv.Optional(CONF_CHARGE_ENABLED, default=True): cv.boolean,
             cv.Optional(CONF_ENABLE_ADC, default=True): cv.boolean,
         }
