@@ -1,8 +1,12 @@
+vl53l1x:
+  - id: vl53l1x_hub
+    i2c_id: i2c_bus
+    address: 0x29
+
 sensor:
   - platform: vl53l1x
-    i2c_id: i2c_bus
+    vl53l1x_id: vl53l1x_hub
     name: VL53L1X Distance
-    address: 0x29
     distance_mode: LONG
     timing_budget: 50ms
     timeout: 500ms
