@@ -1,0 +1,9 @@
+sensor:
+  - platform: vl53l1x
+    i2c_id: i2c_bus
+    name: VL53L1X Distance
+    address: 0x29
+    distance_mode: LONG
+    timing_budget: 50ms
+    timeout: 500ms
+    update_interval: 60s
