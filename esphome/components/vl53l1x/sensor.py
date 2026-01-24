@@ -31,8 +31,8 @@ CONF_TIMING_BUDGET = "timing_budget"
 
 def check_keys(obj):
     if obj[CONF_ADDRESS] != 0x29 and CONF_ENABLE_PIN not in obj:
-        msg = "Address other than 0x29 requires enable_pin definition to allow sensor\r"
-        msg += "re-addressing. Also if you have more than one VL53L1X device on the same\r"
+        msg = "Address other than 0x29 requires enable_pin definition to allow sensor "
+        msg += "re-addressing. Also if you have more than one VL53L1X device on the same "
         msg += "i2c bus, then all VL53L1X devices must have enable_pin defined."
         raise cv.Invalid(msg)
     return obj
@@ -84,8 +84,8 @@ async def to_code(config):
     await i2c.register_i2c_device(var, config)
 
     cg.add(var.set_distance_mode(config[CONF_DISTANCE_MODE]))
-    cg.add(var.set_timing_budget(config[CONF_TIMING_BUDGET]))
-    cg.add(var.set_timeout(config[CONF_TIMEOUT]))
+    cg.add(var.set_timing_budget(config[CONF_TIMING_BUDGET].total_milliseconds))
+    cg.add(var.set_timeout(config[CONF_TIMEOUT].total_milliseconds))
 
     if CONF_ENABLE_PIN in config:
         enable = await cg.gpio_pin_expression(config[CONF_ENABLE_PIN])

@@ -1,4 +1,4 @@
-Most of the functionality of this library is based on the VL53L1X API provided
+Most of the functionality of this library is based on the VL53L1X API
 provided by ST (STSW-IMG007), and some of the explanatory comments are quoted
 or paraphrased from the API source code, API user manual (UM2356), and VL53L1X
 datasheet. Therefore, the license terms for the API source code (BSD 3-clause
