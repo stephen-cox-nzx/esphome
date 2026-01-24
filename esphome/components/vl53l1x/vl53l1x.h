@@ -5,6 +5,7 @@
 #include "esphome/components/i2c/i2c.h"
 
 #include <list>
+#include <vector>
 
 namespace esphome {
 namespace vl53l1x {
@@ -95,24 +96,28 @@ enum RangeStatus {
   NONE = 255,
 };
 
+// Listener interface for sensors
+class VL53L1XListener {
+ public:
+  virtual void on_distance(uint16_t distance_mm, RangeStatus status) = 0;
+};
+
 class VL53L1XComponent : public Component, public i2c::I2CDevice {
  public:
   VL53L1XComponent();
 
   void setup() override;
   void dump_config() override;
+  void loop() override;
   float get_setup_priority() const override { return setup_priority::DATA; }
 
-  // Sensor measurement methods
-  bool start_measurement();
-  bool data_ready();
-  uint16_t read_range_mm();
-  RangeStatus get_range_status();
-
   // Configuration methods
-  bool set_distance_mode(DistanceMode mode);
-  bool set_measurement_timing_budget(uint32_t budget_us);
-  uint32_t get_measurement_timing_budget();
+  void set_distance_mode(DistanceMode mode) { this->distance_mode_ = mode; }
+  void set_timing_budget(uint32_t timing_budget_ms) { this->timing_budget_ms_ = timing_budget_ms; }
+  void set_enable_pin(GPIOPin *enable) { this->enable_pin_ = enable; }
+
+  // Listener registration
+  void register_listener(VL53L1XListener *listener) { this->listeners_.push_back(listener); }
 
   // Helper methods for register access
   bool write_reg(uint16_t reg, uint8_t value);
@@ -122,12 +127,15 @@ class VL53L1XComponent : public Component, public i2c::I2CDevice {
   bool read_reg_16(uint16_t reg, uint16_t *value);
   bool read_reg_32(uint16_t reg, uint32_t *value);
 
-  // Enable pin support for multiple sensors
-  void set_enable_pin(GPIOPin *enable) { this->enable_pin_ = enable; }
-
  protected:
   bool init_sensor_();
+  bool set_distance_mode_(DistanceMode mode);
+  bool set_measurement_timing_budget_(uint32_t budget_us);
+  uint32_t get_measurement_timing_budget_();
   void start_single_shot_();
+  bool data_ready_();
+  uint16_t read_range_mm_();
+  RangeStatus get_range_status_();
 
   // Timing calculation helpers
   uint32_t calc_macro_period_(uint8_t vcsel_period);
@@ -136,9 +144,21 @@ class VL53L1XComponent : public Component, public i2c::I2CDevice {
   uint16_t encode_timeout_(uint32_t timeout_mclks);
   uint32_t decode_timeout_(uint16_t reg_val);
 
+  // Notify all listeners of new measurement
+  void notify_listeners_(uint16_t distance_mm, RangeStatus status);
+
   GPIOPin *enable_pin_{nullptr};
+  DistanceMode distance_mode_{LONG};
+  uint32_t timing_budget_ms_{50};
   uint16_t fast_osc_frequency_{0};
   uint16_t osc_calibrate_val_{0};
+
+  // Measurement state
+  bool measurement_started_{false};
+  uint32_t measurement_start_time_{0};
+
+  // Listeners
+  std::vector<VL53L1XListener *> listeners_;
 
   // Multi-sensor support with enable pins
   static std::list<VL53L1XComponent *> vl53_sensors_;  // NOLINT

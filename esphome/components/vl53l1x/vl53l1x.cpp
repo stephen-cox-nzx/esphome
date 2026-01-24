@@ -68,6 +68,25 @@ void VL53L1XComponent::setup() {
     this->set_i2c_address(final_address);
   }
 
+  // Configure distance mode
+  if (!this->set_distance_mode_(this->distance_mode_)) {
+    ESP_LOGE(TAG, "Failed to set distance mode");
+    this->mark_failed();
+    return;
+  }
+
+  // Set measurement timing budget
+  if (!this->set_measurement_timing_budget_(this->timing_budget_ms_ * 1000)) {
+    ESP_LOGE(TAG, "Failed to set timing budget");
+    this->mark_failed();
+    return;
+  }
+
+  // Start continuous measurement
+  this->start_single_shot_();
+  this->measurement_started_ = true;
+  this->measurement_start_time_ = millis();
+
   ESP_LOGCONFIG(TAG, "VL53L1X setup complete");
 }
 
@@ -77,9 +96,52 @@ void VL53L1XComponent::dump_config() {
   if (this->enable_pin_ != nullptr) {
     LOG_PIN("  Enable Pin: ", this->enable_pin_);
   }
+
+  const char *mode_str = "UNKNOWN";
+  switch (this->distance_mode_) {
+    case SHORT:
+      mode_str = "SHORT";
+      break;
+    case MEDIUM:
+      mode_str = "MEDIUM";
+      break;
+    case LONG:
+      mode_str = "LONG";
+      break;
+    default:
+      break;
+  }
+  ESP_LOGCONFIG(TAG, "  Distance Mode: %s", mode_str);
+  ESP_LOGCONFIG(TAG, "  Timing Budget: %u ms", this->timing_budget_ms_);
+
   if (this->is_failed()) {
     ESP_LOGE(TAG, "Communication with VL53L1X failed!");
   }
+}
+
+void VL53L1XComponent::loop() {
+  if (!this->measurement_started_) {
+    return;
+  }
+
+  // Check if data is ready
+  if (!this->data_ready_()) {
+    return;
+  }
+
+  // Read the range
+  uint16_t range_mm = this->read_range_mm_();
+  RangeStatus status = this->get_range_status_();
+
+  // Clear interrupt
+  this->write_reg(SYSTEM__INTERRUPT_CLEAR, 0x01);
+
+  // Notify all listeners
+  this->notify_listeners_(range_mm, status);
+
+  // Start next measurement
+  this->start_single_shot_();
+  this->measurement_start_time_ = millis();
 }
 
 bool VL53L1XComponent::init_sensor_() {
@@ -264,7 +326,7 @@ bool VL53L1XComponent::set_distance_mode(DistanceMode mode) {
   return this->set_measurement_timing_budget(budget_us);
 }
 
-bool VL53L1XComponent::set_measurement_timing_budget(uint32_t budget_us) {
+bool VL53L1XComponent::set_measurement_timing_budget_(uint32_t budget_us) {
   // Timing budget must be at least 20ms
   if (budget_us < 20000) {
     return false;
@@ -337,17 +399,12 @@ uint32_t VL53L1XComponent::get_measurement_timing_budget() {
   return 2 * range_config_timeout_us + TIMING_GUARD;
 }
 
-bool VL53L1XComponent::start_measurement() {
-  this->start_single_shot_();
-  return true;
-}
-
 void VL53L1XComponent::start_single_shot_() {
   this->write_reg(SYSTEM__INTERRUPT_CLEAR, 0x01);
   this->write_reg(SYSTEM__MODE_START, 0x10);  // Single shot mode
 }
 
-bool VL53L1XComponent::data_ready() {
+bool VL53L1XComponent::data_ready_() {
   uint8_t gpio_status;
   if (!this->read_reg(GPIO__TIO_HV_STATUS, &gpio_status)) {
     return false;
@@ -363,7 +420,7 @@ uint16_t VL53L1XComponent::read_range_mm() {
   return range_mm;
 }
 
-RangeStatus VL53L1XComponent::get_range_status() {
+RangeStatus VL53L1XComponent::get_range_status_() {
   uint8_t status;
   if (!this->read_reg(RESULT__RANGE_STATUS, &status)) {
     return NONE;
@@ -484,6 +541,12 @@ uint32_t VL53L1XComponent::decode_timeout_(uint16_t reg_val) {
   uint8_t ms_byte = (reg_val >> 8) & 0xFF;
   uint8_t ls_byte = reg_val & 0xFF;
   return (((uint32_t) ls_byte) << ms_byte) + 1;
+}
+
+void VL53L1XComponent::notify_listeners_(uint16_t distance_mm, RangeStatus status) {
+  for (auto *listener : this->listeners_) {
+    listener->on_distance(distance_mm, status);
+  }
 }
 
 }  // namespace vl53l1x
