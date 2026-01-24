@@ -30,22 +30,6 @@ CONF_DISTANCE_MODE = "distance_mode"
 CONF_TIMING_BUDGET = "timing_budget"
 
 
-def check_timeout(value):
-    value = cv.positive_time_period_milliseconds(value)
-    if value.total_milliseconds > 60000:
-        raise cv.Invalid("Maximum timeout can not be greater than 60 seconds")
-    return value
-
-
-def check_timing_budget(value):
-    value = cv.positive_time_period_milliseconds(value)
-    if value.total_milliseconds < 20:
-        raise cv.Invalid("Minimum timing budget is 20 ms")
-    if value.total_milliseconds > 1000:
-        raise cv.Invalid("Maximum timing budget is 1000 ms")
-    return value
-
-
 CONFIG_SCHEMA = (
     sensor.sensor_schema(
         VL53L1XSensor,
@@ -60,8 +44,17 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_DISTANCE_MODE, default="LONG"): cv.enum(
                 DISTANCE_MODES, upper=True
             ),
-            cv.Optional(CONF_TIMING_BUDGET, default="50ms"): check_timing_budget,
-            cv.Optional(CONF_TIMEOUT, default="500ms"): check_timeout,
+            cv.Optional(CONF_TIMING_BUDGET, default="50ms"): cv.All(
+                cv.positive_time_period_milliseconds,
+                cv.Range(
+                    min=cv.TimePeriod(milliseconds=20),
+                    max=cv.TimePeriod(milliseconds=1000),
+                ),
+            ),
+            cv.Optional(CONF_TIMEOUT, default="500ms"): cv.All(
+                cv.positive_time_period_milliseconds,
+                cv.Range(max=cv.TimePeriod(milliseconds=60000)),
+            ),
             cv.Optional(CONF_ENABLE_PIN): pins.gpio_output_pin_schema,
         }
     )
